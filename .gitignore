@@ -1,0 +1,13 @@
+.idea/
+
+__pycache__/
+.venv/
+
+.ipynb_checkpoints/
+
+thesis_notes/
+
+*.csv
+visualizations/
+*.png
+
