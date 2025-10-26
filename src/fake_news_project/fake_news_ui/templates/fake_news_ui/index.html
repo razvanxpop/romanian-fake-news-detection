@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fake News Detector</title>
+    <link rel="stylesheet" href="{% static 'fake_news_ui/css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="nav-link top-right">
+            <a href="{% url 'fake_news_ui:word_similarity' %}">Word2Vec Neighbor Analysis &rarr;</a>
+        </div>
+
+        <h1>Enter the News Article</h1>
+
+        {% if form.errors %}
+            <div class="errorlist">
+                {% for field, errors in form.errors.items %}
+                    <p>{{ field|capfirst }}: {{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if error_message_from_facade or error %}
+            <p class="error">{{ error_message_from_facade }}{{ error }}</p>
+        {% endif %}
+
+        <form action="{% url 'fake_news_ui:classify_article' %}" method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                {{ form.news_content.label_tag }}
+                {{ form.news_content }}
+                {% if form.news_content.help_text %}
+                    <small class="helptext">{{ form.news_content.help_text }}</small>
+                {% endif %}
+                {{ form.news_content.errors }}
+            </div>
+
+            <button type="submit">Classify News</button>
+        </form>
+    </div>
+</body>
+</html>

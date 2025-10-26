@@ -1,0 +1,1 @@
+default_app_config = 'fake_news_ui.apps.FakeNewsUiConfig'

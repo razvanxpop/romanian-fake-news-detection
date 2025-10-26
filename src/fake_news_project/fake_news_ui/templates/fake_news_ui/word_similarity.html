@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Word2Vec Neighbor Analysis</title>
+    <link rel="stylesheet" href="{% static 'fake_news_ui/css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="nav-link top-right">
+            <a href="{% url 'fake_news_ui:index' %}">&larr; Back to News Classification</a>
+        </div>
+        <h1>Word2Vec Neighbor Analysis</h1>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.target_word.label_tag }}
+                {{ form.target_word }}
+                {{ form.target_word.errors }}
+            </div>
+            <div class="form-group">
+                {{ form.model_dimension.label_tag }}
+                {{ form.model_dimension }}
+                {{ form.model_dimension.errors }}
+            </div>
+            <div class="form-group">
+                {{ form.top_n.label_tag }}
+                {{ form.top_n }}
+                {{ form.top_n.errors }}
+            </div>
+            <button type="submit">Find Neighbors</button>
+        </form>
+
+        {% if submitted_word %}
+        <div class="results-section">
+            <h2>Results for: "<strong>{{ submitted_word }}</strong>" (Model: {{ selected_dimension }})</h2>
+
+            {% if vocabulary_size %}
+                <p class="info-message">Model Vocabulary Size: {{ vocabulary_size }}</p>
+            {% endif %}
+
+            {% if error_message %}
+                <p class="error-message">{{ error_message }}</p>
+            {% elif similar_words %}
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Neighbor</th>
+                            <th>Similarity Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for word, score in similar_words %}
+                        <tr>
+                            <td>{{ word }}</td>
+                            <td>{{ score|floatformat:4 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="info-message">No neighbors found or word is not in vocabulary.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="model-download-section">
+            <h2>Download Word2Vec Models</h2>
+            <div class="model-card">
+                <h3>Word2Vec Model - 300 Dimensions</h3>
+                <ul>
+                    <li><strong>Dimensions (Vector Size):</strong> 300</li>
+                    <li><strong>Lemmatization Applied:</strong> Yes</li>
+                    <li><strong>Min Count:</strong> 5</li>
+                    <li><strong>Window Size:</strong> 5</li>
+                    <li><strong>Algorithm:</strong> Skip-gram</li>
+                    <li><strong>Vocabulary Size:</strong> 10,771</li>
+                </ul>
+                <a href="{% static 'embeddings/word2vec_300d.model' %}" class="download-btn" download>Download Model (300D)</a>
+            </div>
+            <div class="model-card">
+                <h3>Word2Vec Model - 150 Dimensions</h3>
+                <ul>
+                    <li><strong>Dimensions (Vector Size):</strong> 150</li>
+                    <li><strong>Lemmatization Applied:</strong> Yes</li>
+                    <li><strong>Min Count:</strong> 5</li>
+                    <li><strong>Window Size:</strong> 5</li>
+                    <li><strong>Algorithm:</strong> Skip-gram</li>
+                    <li><strong>Vocabulary Size:</strong> 10,771</li>
+                </ul>
+                <a href="{% static 'embeddings/word2vec_150d.model' %}" class="download-btn" download>Download Model (150D)</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

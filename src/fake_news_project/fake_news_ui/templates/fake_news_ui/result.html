@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Classification Result</title>
+    <link rel="stylesheet" href="{% static 'fake_news_ui/css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Classification Result</h1>
+
+        <h2>Submitted News Content:</h2>
+        <div class="content-box">{{ submitted_content }}</div>
+
+        <h2>Classification:</h2>
+
+        {% comment %} --- ERROR SCENARIO --- {% endcomment %}
+        {% if classification_result == 'ERROR' %}
+            <p class="error-message">{{ message|default:"An error occurred while processing the request." }}</p>
+
+        {% comment %} --- SCENARIO 3: LOW CONFIDENCE (< 60%) --- {% endcomment %}
+        {% elif classification_result == 'MANUAL_VERIFICATION' %}
+            <div class="info-message">
+                <strong>Manual Verification Required</strong><br>
+                The model's confidence is below 60% (Confidence: {{ confidence|floatformat:2 }}). The result could not be determined accurately.
+            </div>
+
+        {% comment %} --- SCENARIO 2: MEDIUM CONFIDENCE (60% to 80%) --- {% endcomment %}
+        {% elif all_predictions %}
+            <div class="info-message">
+                The model's confidence is between 60% and 80%. The most likely category is shown below, followed by all potential predictions sorted by confidence.
+            </div>
+
+            <p>
+                <strong>Top Prediction:</strong>
+                <span class="{% if classification_result == 'REAL' %}result-real
+                        {% elif classification_result == 'FAKE' %}result-fake
+                        {% elif classification_result == 'MISINFORMATION' %}result-fake
+                        {% elif classification_result == 'PROPAGANDA' %}result-error
+                        {% elif classification_result == 'SATIRE' %}result-needs_verification
+                        {% else %}result-needs_verification{% endif %}">
+                    {{ classification_result }}
+                </span>
+                (Confidence: {{ confidence|floatformat:2 }})
+            </p>
+
+            <h3 style="margin-top: 20px;">All Predictions:</h3>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Confidence Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for label, score in all_predictions %}
+                    <tr>
+                        <td>{{ label }}</td>
+                        <td>{{ score|floatformat:4 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        {% comment %} --- SCENARIO 1: HIGH CONFIDENCE (> 80%) --- {% endcomment %}
+        {% else %}
+            <p>
+                <span class="{% if classification_result == 'REAL' %}result-real
+                        {% elif classification_result == 'FAKE' %}result-fake
+                        {% elif classification_result == 'MISINFORMATION' %}result-fake
+                        {% elif classification_result == 'PROPAGANDA' %}result-error
+                        {% elif classification_result == 'SATIRE' %}result-needs_verification
+                        {% else %}result-needs_verification{% endif %}">
+                    {{ classification_result }}
+                </span>
+            </p>
+            <p><strong>Confidence:</strong> {{ confidence|floatformat:2 }}</p>
+        {% endif %}
+
+        <div class="nav-link">
+             <a href="{% url 'fake_news_ui:index' %}">Classify Another Article</a>
+        </div>
+    </div>
+</body>
+</html>
